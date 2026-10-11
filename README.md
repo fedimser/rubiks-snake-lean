@@ -24,12 +24,28 @@ Compile the paper from the repository root with
 
 ## Lean formalization
 
-Build the formal development with:
+Build the formal development from the repository root with:
 
 ```bash
-cd rubiks-snake/lean
+cd lean
+lake exe cache get
 lake build
 ```
+
+[Lean CI](.github/workflows/lean.yml) runs `lake build` in `lean/` on pushes
+to `master` and pull requests targeting `master`. The default target imports
+all project Lean modules, including the native computation certificates.
+
+CI uses the pinned versions in [lean-toolchain](lean/lean-toolchain) and
+[lake-manifest.json](lean/lake-manifest.json). The official
+[Lean action](https://github.com/leanprover/lean-action) downloads precompiled
+Mathlib artifacts with `lake exe cache get` and caches `.lake/` between runs,
+keyed by the platform, Lean toolchain, and dependency manifest, with reuse
+across commits. This avoids compiling Mathlib from source even on a cold
+GitHub Actions cache. The community
+[Lean Docker image](https://github.com/leanprover-community/mathlib4/blob/master/.docker/lean/Dockerfile)
+does not include Mathlib, so CI uses its precompiled artifact cache instead
+of a container image.
 
 The shared formula, reflection, and reversal transforms live in
 [Transforms](lean/RubiksSnake/Transforms), with module names
@@ -163,4 +179,3 @@ validity under every integer cyclic shift, including negative shifts.
 The default library build imports all these results and contains no `sorry`.
 The finite computational checks use Lean's `native_decide`, as do the
 existing small-count proofs.
-
