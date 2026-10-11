@@ -20,7 +20,7 @@ The main formalized results are lower and upper bounds on
     * [`FinalResults.lean`](lean/RubiksSnake/SnAsymptotic/FinalResults.lean) - the main result: `(3.4505674)^(n-1) <= S(n) <= 2.95621 * (3.661786723)^(n-1)`.
   * [`OtherSequences/`](lean/RubiksSnake/OtherSequences/) - related counts for loops, rotation-restricted snakes, and symmetry orbits.
   * [`Transforms/`](lean/RubiksSnake/Transforms/) - formula, reflection, and reversal transforms.
-* [`papers/sn_bounds/paper.pdf`](papers/sn_bounds/paper.pdf) - accompanying article about the lower and upper bounds on `S(n)`.
+* [`papers/sn_bounds/RubikSnakeBounds.pdf`](papers/sn_bounds/RubikSnakeBounds.pdf) - accompanying article about the lower and upper bounds on `S(n)`.
 
 ## How to build
 
@@ -58,6 +58,6 @@ positive `n`.
 The lower-bound proof uses geometrically separated cap-and-bridge codes and a
 checked finite recurrence. The upper-bound proof uses a finite-memory automaton
 built from collision prefixes through length 16.
-[`paper.pdf`](papers/sn_bounds/paper.pdf) explains the constructions. The Lean
+[`RubikSnakeBounds.pdf`](papers/sn_bounds/RubikSnakeBounds.pdf) explains the constructions. The Lean
 files contain the geometric proofs, finite certificate checks, and the argument
 for all positive lengths.
