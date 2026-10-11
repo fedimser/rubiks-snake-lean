@@ -44,7 +44,7 @@ def main() -> None:
             color="#0072B2",
             linestyle="--",
             linewidth=1.2,
-            label=r"Lower bound: $(3.4505674)^{n-1}$",
+            label=r"Lower bound: $(3.45056)^{n-1}$",
         )
         ax.plot(
             n,
@@ -64,7 +64,7 @@ def main() -> None:
             color="#D55E00",
             linestyle="-.",
             linewidth=1.2,
-            label=r"Upper bound: $2.95621(3.661786723)^{n-1}$",
+            label=r"Upper bound: $2.95621(3.66179)^{n-1}$",
         )
         ax.set_yscale("log")
         ax.set_xlabel(r"Number of wedges, $n$")

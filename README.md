@@ -22,6 +22,8 @@ The main formalized results are lower and upper bounds on
   * [`Transforms/`](lean/RubiksSnake/Transforms/) - formula, reflection, and reversal transforms.
 * [`papers/sn_bounds/RubikSnakeBounds.pdf`](papers/sn_bounds/RubikSnakeBounds.pdf) - accompanying article about the lower and upper bounds on `S(n)`.
 
+**Notice**. This repository contains AI-generated content (including Lean code and paper text).  
+
 ## How to build
 
 Install [Git](https://git-scm.com/) and
