@@ -1,0 +1,11 @@
+agents/*
+papers/archive
+papers/sn_asymptotic/*
+!papers/sn_asymptotic/*.cls
+!papers/sn_asymptotic/*.py
+!papers/sn_asymptotic/*.png
+!papers/sn_asymptotic/paper.tex
+!papers/sn_asymptotic/refs.bib
+asymptotic-analysis/*
+asymptotic-analysis-draft/*
+lean/.lake
