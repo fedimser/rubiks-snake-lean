@@ -1,11 +1,14 @@
 # rubiks-snake-lean
 Lean formalization of Rubik's Snake
 
-## Certified asymptotic bounds
+## Certified pointwise bounds
 
-The [paper](paper-draft/paper.tex) proves that the exponential growth constant
-exists and gives computer-assisted lower and upper bounds. Four notebooks
-reproduce the finite computations; each can be run on its own:
+The [paper](papers/sn_asymptotic/paper.tex) explains the two Lean-proved
+pointwise bounds on the number of Rubik's Snake shapes, using concatenable
+bridges for the lower bound and a finite-memory automaton for the upper bound.
+It is a single-column article focused on these constructions.
+Four notebooks reproduce historical finite computations, rather than the
+current Lean certificates; each can be run on its own:
 
 * [Lower bound for the growth constant](asymptotic-analysis/mu-lower.ipynb)
 * [Upper bound for the growth constant](asymptotic-analysis/mu-upper.ipynb)
@@ -20,7 +23,13 @@ output is labeled archival.
 The notebooks use [rubiks_snake.py](rubiks_snake.py), NumPy, Numba, and SciPy.
 Run them from this directory, their own directory, or the repository root.
 Compile the paper from the repository root with
-`latexmk -pdf -cd rubiks-snake/paper-draft/paper.tex`.
+`latexmk -pdf -cd papers/sn_asymptotic/paper.tex`.
+
+Regenerate the paper's [bounds-comparison figure](papers/sn_asymptotic/bounds_plot.png)
+with `.venv/bin/python papers/sn_asymptotic/bounds_plot.py`. The
+[script](papers/sn_asymptotic/bounds_plot.py) uses NumPy, Matplotlib, and the
+`oeis` package to read the first 28 terms of A375865 and writes a 600-dpi PNG
+beside the script. It uses the same logarithmic comparison as the notebook.
 
 ## Lean formalization
 
@@ -79,11 +88,10 @@ example : S_FIX_REV 5 = 13 := by
   compute_snakes_pred
 ```
 
-The four summary results are in
+The two summary results are in
 [FinalResults.lean](lean/RubiksSnake/SnAsymptotic/FinalResults.lean), in the namespace
-`RubiksSnake.FinalResults`. They give the exact values `S_6 = 920` and
-`S_7 = 3384`, together with the following pointwise bounds using exact decimal
-constants:
+`RubiksSnake.FinalResults`. They give the following pointwise bounds using
+exact decimal constants:
 
 $$
 (3.4505674)^{n-1} \leq S_n \leq 2.95621(3.661786723)^{n-1}
