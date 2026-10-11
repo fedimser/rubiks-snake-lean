@@ -1,189 +1,143 @@
-# rubiks-snake-lean
-Lean formalization of Rubik's Snake
+# Lean formalization of Rubik's Snake
 
-## Certified pointwise bounds
+This repository formalizes the geometry and enumeration of Rubik's Snake in
+Lean. It counts collision-free configurations of an oriented snake with
+distinguished ends, up to translation and proper rotation (but not reflection
+or reversal).
 
-The [paper](papers/sn_asymptotic/paper.tex) explains the two Lean-proved
-pointwise bounds on the number of Rubik's Snake shapes, using concatenable
-bridges for the lower bound and a finite-memory automaton for the upper bound.
-It is a single-column article focused on these constructions.
-Four notebooks reproduce historical finite computations, rather than the
-current Lean certificates; each can be run on its own:
+For every positive number of wedges \(n\), the main results prove the pointwise
+bounds
 
-* [Lower bound for the growth constant](asymptotic-analysis/mu-lower.ipynb)
-* [Upper bound for the growth constant](asymptotic-analysis/mu-upper.ipynb)
-* [Pointwise lower bounds](asymptotic-analysis/pointwise-lower.ipynb)
-* [Pointwise upper bounds](asymptotic-analysis/pointwise-upper.ipynb)
+\[
+(3.4505674)^{n-1} \leq S_n
+\leq 2.95621(3.661786723)^{n-1}.
+\]
 
-Each notebook defines a reusable bound function and calls it first with small
-inputs, then with the published parameters. Larger cutoffs or window sizes can improve the
-bounds. The largest upper-bound run needs several GiB of memory. Its saved
-output is labeled archival.
+The decimal constants in these statements are exact.
 
-The notebooks use [rubiks_snake.py](rubiks_snake.py), NumPy, Numba, and SciPy.
-Run them from this directory, their own directory, or the repository root.
-Compile the paper from the repository root with
-`latexmk -pdf -cd papers/sn_asymptotic/paper.tex`.
+## Repository structure
 
-Regenerate the paper's [bounds-comparison figure](papers/sn_asymptotic/bounds_plot.png)
-with `.venv/bin/python papers/sn_asymptotic/bounds_plot.py`. The
-[script](papers/sn_asymptotic/bounds_plot.py) uses NumPy, Matplotlib, and the
-`oeis` package to read the first 28 terms of A375865 and writes a 600-dpi PNG
-beside the script. It uses the same logarithmic comparison as the notebook.
+* [`lean/`](lean/) contains the Lean project.
+  * [`RubiksSnake.lean`](lean/RubiksSnake.lean) is the library entry point and
+    imports the complete formal development.
+  * [`RubiksSnake/Definitions.lean`](lean/RubiksSnake/Definitions.lean) defines
+    rotation formulas, the lattice model of wedges, collision freedom, and the
+    counting sequence \(S_n\).
+  * [`RubiksSnake/Geometry.lean`](lean/RubiksSnake/Geometry.lean) proves shared
+    geometric lemmas and gives a simple collision-free construction.
+  * [`RubiksSnake/ComputeSnakes.lean`](lean/RubiksSnake/ComputeSnakes.lean)
+    implements certified enumeration, proves it agrees with \(S_n\), and
+    provides tactics for checking concrete counts.
+  * [`RubiksSnake/SnAsymptotic/`](lean/RubiksSnake/SnAsymptotic/) contains the
+    lower- and upper-bound constructions, executable certificate checks, and
+    their correctness proofs.
+    [`FinalResults.lean`](lean/RubiksSnake/SnAsymptotic/FinalResults.lean)
+    states the main pointwise bounds.
+  * [`RubiksSnake/OtherSequences/`](lean/RubiksSnake/OtherSequences/) studies
+    related counts, including loops, rotation-restricted snakes, and orbits
+    under symmetries.
+  * [`RubiksSnake/Transforms/`](lean/RubiksSnake/Transforms/) defines and proves
+    properties of formula, reflection, and reversal transforms.
+  * [`lakefile.toml`](lean/lakefile.toml) defines the Lean libraries and pins the
+    Mathlib dependency.
+  * [`lean-toolchain`](lean/lean-toolchain) pins the Lean version, while
+    [`lake-manifest.json`](lean/lake-manifest.json) locks dependency revisions.
+* [`papers/sn_bounds/`](papers/sn_bounds/) contains the accompanying article
+  and its generated assets.
+  * [`paper.pdf`](papers/sn_bounds/paper.pdf) is the rendered article describing
+    the pointwise bounds.
+  * [`paper.tex`](papers/sn_bounds/paper.tex) and
+    [`refs.bib`](papers/sn_bounds/refs.bib) are its LaTeX source and
+    bibliography.
+  * [`bounds_plot.py`](papers/sn_bounds/bounds_plot.py) generates
+    [`bounds_plot.png`](papers/sn_bounds/bounds_plot.png).
+* [`.github/workflows/lean.yml`](.github/workflows/lean.yml) builds the full
+  Lean project in GitHub Actions.
+* [`LICENSE`](LICENSE) contains the repository license.
 
-## Lean formalization
+## Initialize the repository
 
-Build the formal development from the repository root with:
+Install [Git](https://git-scm.com/) and
+[elan](https://github.com/leanprover/elan), the Lean toolchain manager. Then
+clone the repository and download the pinned Lean toolchain, dependencies, and
+precompiled Mathlib cache:
 
 ```bash
-cd lean
+git clone https://github.com/fedimser/rubiks-snake-lean.git
+cd rubiks-snake-lean/lean
 lake exe cache get
+```
+
+The versions in [`lean-toolchain`](lean/lean-toolchain) and
+[`lake-manifest.json`](lean/lake-manifest.json) make the setup reproducible.
+
+## Build the Lean project
+
+From the [`lean/`](lean/) directory, build the complete formalization:
+
+```bash
 lake build
 ```
 
-[Lean CI](.github/workflows/lean.yml) runs `lake build` in `lean/` on pushes
-to `master` and pull requests targeting `master`. The default target imports
-all project Lean modules, including the native computation certificates.
+The default target is the [`RubiksSnake`](lean/RubiksSnake.lean) library, whose
+entry point imports all project modules, including the native computation
+certificates. To build a single module while developing, pass its module name;
+for example:
 
-CI uses the pinned versions in [lean-toolchain](lean/lean-toolchain) and
-[lake-manifest.json](lean/lake-manifest.json). The official
-[Lean action](https://github.com/leanprover/lean-action) downloads precompiled
-Mathlib artifacts with `lake exe cache get` and caches `.lake/` between runs,
-keyed by the platform, Lean toolchain, and dependency manifest, with reuse
-across commits. This avoids compiling Mathlib from source even on a cold
-GitHub Actions cache. The community
-[Lean Docker image](https://github.com/leanprover-community/mathlib4/blob/master/.docker/lean/Dockerfile)
-does not include Mathlib, so CI uses its precompiled artifact cache instead
-of a container image.
-
-The shared formula, reflection, and reversal transforms live in
-[Transforms](lean/RubiksSnake/Transforms), with module names
-`RubiksSnake.Transforms.FormulaTransform`,
-`RubiksSnake.Transforms.ReflectionTransform`, and
-`RubiksSnake.Transforms.ReversalTransform`.
-
-[ComputeSnakes.lean](lean/RubiksSnake/ComputeSnakes.lean) also provides
-`fastCountValidShapesPred n p` for counting valid `n`-wedge formulas satisfying
-`p`. It generates valid rotation lists of length `n - 1`, then counts matches
-without allocating a filtered list. The predicate must have a computable
-`DecidablePred p` instance. For example:
-
-```lean
-import RubiksSnake.ComputeSnakes
-open RubiksSnake
-
-#eval fastCountValidShapesPred 5 (fun f => ∀ i, f i = 0) -- 1
+```bash
+lake build RubiksSnake.SnAsymptotic.FinalResults
 ```
 
-Use `compute_snakes_pred` to prove concrete predicate-restricted counts. The
-tactic reduces transparent named-count wrappers, rewrites the abstract count
-to the executable count using `countingWithPredicate` when applicable, and
-finishes with `native_decide`. Already executable goals are checked directly;
-count conversion is optional, but the final computation must succeed.
-For example, after importing
-`RubiksSnake.OtherSequences.Burnside` and opening `RubiksSnake`:
+The [Lean CI workflow](.github/workflows/lean.yml) performs the full build on
+pushes and pull requests to `main`.
+
+## Certified computation
+
+[`ComputeSnakes.lean`](lean/RubiksSnake/ComputeSnakes.lean) defines `fastS`, an
+executable version of \(S_n\), and proves that the executable and mathematical
+definitions agree. The `compute_snakes` tactic proves concrete values using
+native evaluation.
+
+The same module also provides `fastCountValidShapesPred` and the
+`compute_snakes_pred` tactic for certified counts restricted by a decidable
+predicate. For example:
 
 ```lean
+import RubiksSnake.OtherSequences.Burnside
+
+open RubiksSnake
+
 example : S_FIX_REV 5 = 13 := by
   compute_snakes_pred
 ```
 
-The two summary results are in
-[FinalResults.lean](lean/RubiksSnake/SnAsymptotic/FinalResults.lean), in the namespace
-`RubiksSnake.FinalResults`. They give the following pointwise bounds using
-exact decimal constants:
+## Main formal results
 
-$$
-(3.4505674)^{n-1} \leq S_n \leq 2.95621(3.661786723)^{n-1}
-\quad(n\geq1).
-$$
+The theorems
+[`Sn_lower_bound`](lean/RubiksSnake/SnAsymptotic/FinalResults.lean) and
+[`Sn_upper_bound`](lean/RubiksSnake/SnAsymptotic/FinalResults.lean), in the
+`RubiksSnake.FinalResults` namespace, establish the displayed bounds for every
+positive \(n\).
 
-The [current lower proof](lean/RubiksSnake/SnAsymptotic/CapLowerBound.lean) assembles
-14-wedge transverse pieces between overhanging head and tail caps.
-[Unique geometric decoding](lean/RubiksSnake/SnAsymptotic/CapAssembly.lean) and
-[checked local recurrence inequalities](lean/RubiksSnake/SnAsymptotic/CapAssemblyCertificate.lean)
-prove that the degree-64 coefficients undercount distinct valid irreducible
-bridges. Opposite transverse orientations give two disjoint copies.
-Length cutoffs exclude overlap with the older slab code.
+The lower bound is constructed from geometrically separated cap-and-bridge
+codes and a checked finite recurrence. The upper bound uses a finite-memory
+automaton built from collision prefixes through length 16. The accompanying
+[`paper.pdf`](papers/sn_bounds/paper.pdf) explains both constructions; the Lean
+development proves the geometric details, finite certificate checks, and the
+passage to all positive lengths.
 
-That [older fast lower proof](lean/RubiksSnake/SnAsymptotic/FastLowerBound.lean) uses
-[fourfold geometric symmetry](lean/RubiksSnake/SnAsymptotic/BridgeSymmetry.lean): count
-only blocks whose first step is `+y`, then rotate them about x. The four
-copies are disjoint because their first steps differ. This multiplies every
-coefficient by four without repeating the search. The checked seed widths
-are 0, 1, 2, and 3, with internal-edge cutoffs 20, 20, 18, and 21.
-Budget pruning only needs to give undercounts.
+## Build the paper
 
-The old row check takes about 50 seconds, the new recurrence check about
-21 seconds, and the cap polynomial module about 8 seconds. A fresh,
-serial rebuild of **all 40 project-owned lower-proof modules**, including
-all three native computation libraries and all certificates, passed in
-**172.40 seconds**, with maximum child RSS about **3.17 GiB**. This timing
-reuses the pinned Lean compiler and cached third-party dependencies, but
-no project-owned build artifacts. Reproduce it from the repository root:
+With a LaTeX distribution and `latexmk` installed, compile the article from the
+repository root:
 
 ```bash
-.venv/bin/python rubiks-snake/lean/check_fast_lower.py
+latexmk -pdf -cd papers/sn_bounds/paper.tex
 ```
 
-The fresh check has a five-minute deadline and a 4096 MiB Lean heap limit.
-The older 117.61-second proof can still be benchmarked with
-`--target RubiksSnake.FastLowerBound --seconds 120`.
-
-For an ordinary incremental build, use `lake build RubiksSnake.CapLowerBound`
-from the Lean directory. For fresh checks of individual files, use
-`lake lean FILE.lean`, which loads the native libraries; bare
-`lake env lean FILE.lean` can fall back to much slower interpreted execution.
-
-[Enumeration correctness](lean/RubiksSnake/SnAsymptotic/SlabEnumeration.lean),
-[collision freedom](lean/RubiksSnake/SnAsymptotic/SlabBlockValidity.lean), and
-[unique decoding](lean/RubiksSnake/SnAsymptotic/BridgeCode.lean) are proved separately.
-A block is selected by requiring a backward crossing of every internal slab
-boundary, avoiding the subtraction recurrence used by the Python certificate.
-
-The [upper bound](lean/RubiksSnake/SnAsymptotic/ForbiddenPrefixSixteenUpperBound.lean) uses the
-proper prefixes of collision factors through length 16. Its automaton has
-4,748,260 states; 48 sparse integer iterations generate the potential. A six-step terminal
-estimate handles states with no long continuation, without an artificial
-positive weight that would inflate the prefactor.
-The length-16 finite check now takes **3m39s**, down from the recorded **36m19s**.
-Its executable routines are in the separately precompiled
-[prefix computation library](lean/RubiksSnake/SnAsymptotic/PrefixComputation.lean).
-For each state, the graph builder computes the existing wedge geometry and
-validity once, then tests each of the four possible new wedges against it.
-[The equivalence proof](lean/RubiksSnake/SnAsymptotic/WindowUpperComputation.lean)
-covers all prefixes, including invalid ones.
-Both theorems in
-[the finite-check module](lean/RubiksSnake/SnAsymptotic/ForbiddenPrefixSixteenComputation.lean)
-remain needed by the final upper bounds; every original certificate obligation
-and graph count is retained.
-
-The fresh serial measurement includes rebuilding the native library, its
-compatibility import, and the complete finite check: **218.69 seconds**,
-with maximum child RSS **2.51 GiB** and a **4096 MiB** Lean heap limit.
-It reuses only the pinned compiler and cached third-party dependencies.
-Reproduce it from the repository root:
+The plot generator requires Python with NumPy, Matplotlib, and the `oeis`
+package:
 
 ```bash
-.venv/bin/python rubiks-snake/lean/check_fast_lower.py \
-  --target RubiksSnake.ForbiddenPrefixSixteenComputation
+python papers/sn_bounds/bounds_plot.py
 ```
-
-This measures the finite certificate, not a fresh build of the entire library.
-The strongest formal bounds improve both endpoints of the original notebook
-certificate. Their remaining base gap is 0.211219323. Numerical-bound research
-has concluded at the user's request.
-The lower notebooks retain the historical 3.400034903 computation; they do
-not reproduce the fourfold or transverse-cap certificates.
-
-[Submultiplicativity](lean/RubiksSnake/SnAsymptotic/Submultiplicativity.lean)
-removes the positive prefactor from the renewal lower bound directly, without
-introducing a named growth constant. A
-[frame-normalization lemma](lean/RubiksSnake/SnAsymptotic/CardinalDirections.lean)
-connects paths in any cardinal initial frame to the original rotation formulas.
-
-The [loop development](lean/RubiksSnake/OtherSequences/Loops.lean) proves preservation of
-validity under every integer cyclic shift, including negative shifts.
-The default library build imports all these results and contains no `sorry`.
-The finite computational checks use Lean's `native_decide`, as do the
-existing small-count proofs.
