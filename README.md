@@ -20,6 +20,8 @@ The main formalized results are lower and upper bounds on
     * [`FinalResults.lean`](lean/RubiksSnake/SnAsymptotic/FinalResults.lean) - the main result: `(3.4505674)^(n-1) <= S(n) <= 2.95621 * (3.661786723)^(n-1)`.
   * [`OtherSequences/`](lean/RubiksSnake/OtherSequences/) - related counts for loops, rotation-restricted snakes, and symmetry orbits.
   * [`Transforms/`](lean/RubiksSnake/Transforms/) - formula, reflection, and reversal transforms.
+  * [`GrowthConstant.lean`](lean/RubiksSnake/GrowthConstant.lean) - statements about existence and bounds of a specific growth constant associated with Rubik's Snake.
+  
 * [`papers/sn_bounds/RubikSnakeBounds.pdf`](papers/sn_bounds/RubikSnakeBounds.pdf) - accompanying article about the lower and upper bounds on `S(n)`.
 
 **Notice**. This repository contains AI-generated content (including Lean code and paper text).  

@@ -1,3 +1,4 @@
+import RubiksSnake.GrowthConstant
 import RubiksSnake.OtherSequences.Burnside
 import RubiksSnake.Definitions
 import RubiksSnake.Geometry
